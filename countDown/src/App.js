@@ -51,10 +51,10 @@ class App extends Component{
   render() {
     const {count} = this.state;
     return (
-      <div>
+      <Fragment>
         <Timer time={count}/>
         <Form setCountDown={(seconds) => this.handleCountdown(seconds)}/>
-      </div>
+      </Fragment>
     )
   }
 }
