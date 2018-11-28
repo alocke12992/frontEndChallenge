@@ -1,88 +1,59 @@
 import React, { Component, Fragment } from 'react'
+import Timer from './Timer.js'
+import Form from './Form.js'
 import './App.css'
 
-class App extends Component {
+class App extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
-      sec: 0,
-      counting: false
+      count: 0,
+      running: false,
+    }
+    this.handleStart = this.handleStart.bind(this)
+    this.handleStop = this.handleStop.bind(this)
+    this.handleReset = this.handleStop.bind(this)
+  }
+  
+  componentDidUpdate(prevProps, prevState) {
+    if(this.state.running !== prevState.running){
+      if (this.state.running) {
+          this.handleStart();
+      }
     }
   }
-
-  handleChange(e){
-    this.setState({sec: time})
-  } 
-
-  handleSubmit(e){
-    e.preventDefault()
-    let time = this.refs.sec.value
+  
+  handleStart() {
+    this.timer = setInterval(() => {
+      const newCount = this.state.count - 1;
+      this.setState(
+        {count: newCount >= 0 ? newCount : 0}
+      );
+    }, 1000);
+  }
+  
+  handleStop() {
+    if(this.timer) {
+      clearInterval(this.timer);
+      this.setState(
+        {running:false}
+      );
+    }
+  }
+    
+  handleCountdown(seconds) {
     this.setState({
-      sec
-      counting: true
+      count: seconds,
+      running: true
     })
   }
-
-  componentDidUpdate(prevProps, prevState, newProps, newState){
-    console.log(prevProps, prevState, newState, newProps)
-    if (this.state.counting){
-      this.handleCountDown()
-    }
-  }
-
-  handleCountDown() {
-    setInterval(() => {
-      let timeRemaining = this.state.sec - 1
-      this.setState({ 
-        sec: timeRemaining >= 0 ? timeRemaining : 0 
-      })
-    }, 1000)
-  }
-
-  showForm(){
-    return(
-      <form onSubmit={(e) => this.handleSubmit(e)}>
-          <input 
-            name="sec"
-            placeholder="Seconds"
-            type="number"
-            ref="sec"
-          />
-          <button type="submit">
-            Start
-          </button>
-        </form>
-    )
-  }
-
-  formatTime(time){
-    let seconds = time % 60;
-    let minutes = Math.floor(time / 60);
-    minutes = minutes.toString().length === 1 ? "0" + minutes : minutes;
-    seconds = seconds.toString().length === 1 ? "0" + seconds : seconds;
-    return minutes + ':' + seconds;
-  }
-
-  ticker(){
-    return(
-
-    <div>
-      {this.formatTime(this.state.sec)}
-    </div>
-    )
-  }
-
+  
   render() {
+    const {count} = this.state;
     return (
-      <div className="App">
-        <Fragment>
-          {this.showForm()}
-        </Fragment>
-        <Fragment>
-          {
-            this.ticker()
-          }
-        </Fragment>
+      <div>
+        <Timer time={count}/>
+        <Form setCountDown={(seconds) => this.handleCountdown(seconds)}/>
       </div>
     )
   }
